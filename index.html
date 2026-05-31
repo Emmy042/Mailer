@@ -37,7 +37,13 @@
           </div>
 
           <div class="field-group editor-group">
-            <label for="editor">Message body</label>
+            <div class="section-heading">
+              <label for="editor">Message body</label>
+              <div class="mode-toggle" role="group" aria-label="Message body mode">
+                <button class="mode-button active" type="button" id="compose-mode-button" aria-pressed="true">Compose</button>
+                <button class="mode-button" type="button" id="template-mode-button" aria-pressed="false">HTML Template</button>
+              </div>
+            </div>
             <div id="toolbar" aria-label="Message formatting controls">
               <span class="ql-formats">
                 <select class="ql-header" aria-label="Text style">
@@ -65,6 +71,27 @@
             </div>
             <div id="editor" aria-label="Message body rich text editor"></div>
             <textarea id="body-fallback" class="fallback-editor" rows="12" placeholder="Write your email body here."></textarea>
+            <div id="template-panel" class="template-panel" hidden>
+              <div class="template-controls">
+                <div class="template-name-field">
+                  <label for="template-name">Template name</label>
+                  <input id="template-name" type="text" autocomplete="off" placeholder="Launch invite">
+                </div>
+                <button class="secondary-button" type="button" id="save-template">Save Template</button>
+              </div>
+              <textarea id="template-html" rows="14" spellcheck="false" placeholder="Paste the HTML from another email here. Full HTML documents and email body fragments are both supported."></textarea>
+              <div class="template-library">
+                <label for="saved-templates">Saved templates</label>
+                <div class="template-library-actions">
+                  <select id="saved-templates" aria-label="Saved templates">
+                    <option value="">No saved templates</option>
+                  </select>
+                  <button class="secondary-button" type="button" id="load-template">Load</button>
+                  <button class="secondary-button danger-button" type="button" id="delete-template">Delete</button>
+                </div>
+                <p class="template-status" id="template-status" role="status"></p>
+              </div>
+            </div>
             <div class="field-meta">
               <span id="body-summary">0 words</span>
               <span id="body-error" class="error-text" role="status"></span>
@@ -107,16 +134,21 @@
           <iframe id="email-preview" title="Rendered email preview" sandbox=""></iframe>
         </div>
 
-        <div class="preview-panel">
-          <div class="json-heading">
-            <h3>API Payload</h3>
-            <button class="icon-button" type="button" id="copy-payload" aria-label="Copy payload">Copy</button>
-          </div>
+        <div class="preview-panel developer-panel">
+          <button class="developer-toggle" type="button" id="payload-toggle" aria-expanded="false" aria-controls="payload-panel">
+            Developer payload
+          </button>
+          <div id="payload-panel" class="payload-panel" hidden>
+            <div class="json-heading">
+              <h3>API Payload</h3>
+              <button class="icon-button" type="button" id="copy-payload" aria-label="Copy payload">Copy</button>
+            </div>
           <pre id="payload-preview">{
   "recipients": [],
   "subject": "",
   "html": ""
 }</pre>
+          </div>
         </div>
 
         <p class="submit-state" id="submit-state" role="status">Fill out the campaign fields to prepare a backend-ready payload.</p>

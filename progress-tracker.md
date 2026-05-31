@@ -52,6 +52,31 @@
 - Updated `README.md` with Phase 4 worker and SMTP environment settings.
 - Refactored `queues.js` so the API creates the BullMQ queue lazily only after Redis reachability passes, preventing noisy Redis connection errors while Redis is absent.
 
+## Frontend Template Workflow
+
+### 2026-05-31
+
+- Added an HTML template mode to the existing message body editor.
+- Users can now switch between rich-text compose mode and raw HTML template mode.
+- Raw HTML copied from another email can be pasted into the app and rendered in the same email preview iframe used by the normal composer.
+- Full HTML documents and body fragments are both supported:
+  - full documents are previewed as-is.
+  - fragments are wrapped in the existing preview shell.
+- Template mode sends the pasted HTML as the campaign `html` payload.
+- Added browser-local template saving with `localStorage`.
+- Added saved-template controls:
+  - template name input.
+  - save template.
+  - load template.
+  - delete template.
+- Added template UI styling and responsive layout rules in `styles.css`.
+- Updated `.gitignore` encoding so Git recognizes `node_modules/` as ignored.
+- Installed npm dependencies locally so the app can run in this workspace.
+- Verified `node --check app.js`.
+- Verified `node --check server.js`.
+- Verified the app serves at `http://127.0.0.1:3000/`.
+- Note: saved templates are currently browser-local only. They are not shared across devices, browsers, or users.
+
 ## Remaining Work / Resume Point
 
 ### Infrastructure Required Before Real Sending
@@ -88,29 +113,38 @@
 - Submit a test campaign and confirm the worker consumes the queued job.
 - Confirm Nodemailer reports accepted/rejected recipients.
 
-### Phase 5: Logging & Database
+### Template Workflow Completion Checks
 
-- Install and configure PostgreSQL.
-- Add database schema for:
-  - campaigns
-  - recipients/jobs
-  - delivery attempts
-  - failures/status messages
-- Record campaign acceptance in the API.
-- Record queued job creation.
-- Record worker success/failure results from Nodemailer.
-- Add API endpoints for delivery history and campaign status.
-- Add UI panel for recent campaigns and delivery results.
+- Test pasted HTML templates from real email exports, including table-heavy email layouts.
+- Confirm copied email images render correctly:
+  - externally hosted images should load in preview.
+  - inline `cid:` images will not render unless attachment support is added.
+- Decide whether saved templates should remain browser-local or move to backend storage.
+- If templates should be shared or persistent across devices, add backend template endpoints and a database or file-backed store.
+- Add template import/export controls if users need to move templates between browsers.
+- Add a clear warning or sanitizer strategy before allowing untrusted HTML from other sources.
+
+### App Completion Checklist
+
+- Install/start Redis and verify real campaign queueing.
+- Configure SMTP credentials or a local MTA and verify real email delivery.
+- Add sender settings to the UI so users can set from name, from email, and reply-to without editing environment variables.
+- Add delivery result visibility in the UI, at minimum queue status plus recent success/failure output.
+- Add authentication before exposing the app outside localhost.
+- Add persistent storage if campaigns, templates, queue history, or delivery results must survive browser/device changes.
+- Add production environment configuration docs for Redis, SMTP, and sender identity.
+- Add end-to-end smoke tests for:
+  - composing a normal email.
+  - pasting an HTML template.
+  - saving/loading/deleting a template.
+  - submitting a campaign.
+  - worker delivery success/failure.
 
 ### Deliverability / Production Hardening
 
 - Configure a real sending domain.
 - Add SPF, DKIM, and DMARC DNS records.
 - Configure reverse DNS if using a self-hosted mail server.
-- Add sender settings to the UI:
-  - From name
-  - From email
-  - Reply-to email
 - Add unsubscribe/footer support before any bulk or recurring use.
 - Add bounce handling when using an SMTP provider or configured MTA.
 - Add rate-limit controls in the UI/API.
@@ -122,7 +156,7 @@
 - Phase 2: implemented.
 - Phase 3: code implemented, blocked on Redis runtime.
 - Phase 4: code implemented, blocked on Redis plus SMTP/Postfix runtime.
-- Phase 5: not started.
+- HTML template paste/preview/save workflow: implemented with browser-local storage.
 
 ## Continuation
 
@@ -132,3 +166,11 @@
 - Confirmed Mailer API is currently listening on port `3000`.
 - Confirmed Redis is still not listening on port `6379`.
 - Next action: install/start Redis so Phase 3 can enqueue real BullMQ jobs.
+
+### 2026-05-31
+
+- Added the HTML template paste/preview/save workflow.
+- Current app can compose normal emails and paste saved HTML templates into the same campaign payload flow.
+- Current app can preview both normal composed messages and raw HTML templates before sending.
+- Current app still cannot complete real sending until Redis and SMTP are configured.
+- Next best action: install/start Redis, then submit a template-based test campaign and confirm jobs appear in BullMQ.
